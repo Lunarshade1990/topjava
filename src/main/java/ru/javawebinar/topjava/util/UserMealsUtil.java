@@ -64,7 +64,7 @@ public class UserMealsUtil {
     }
 
     private static boolean isInTimeRange(LocalTime startTime, LocalTime endTime, UserMeal meal) {
-        LocalTime mealTime = getMealTime(meal);
+        LocalTime mealTime = meal.getDateTime().toLocalTime();
         return isTimeBetweenHalfOpen(mealTime, startTime, endTime);
     }
 
@@ -72,10 +72,6 @@ public class UserMealsUtil {
         return meals.stream()
                 .collect(Collectors.groupingBy(UserMealsUtil::getMealDate,
                         Collectors.summingInt(UserMeal::getCalories)));
-    }
-    
-    private static LocalTime getMealTime(UserMeal meal) {
-        return meal.getDateTime().toLocalTime();
     }
 
     private static LocalDate getMealDate(UserMeal meal) {
