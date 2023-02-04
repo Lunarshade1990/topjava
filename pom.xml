@@ -70,7 +70,6 @@
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>${jstl.version}</version>
-            <scope>provided</scope>
         </dependency>
 
     </dependencies>
