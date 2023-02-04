@@ -20,9 +20,7 @@
     </tr>
     <c:set var="rowcolor" value="green"/>
     <c:forEach var="meal" items="${ meals }">
-        <c:if test="${meal.excess}">
-            <c:set var="rowcolor" value="red"/>
-        </c:if>
+        <c:set var="rowcolor" value="${meal.excess ? 'red' : 'green'}"/>
         <tr class="${rowcolor}">
             <td><fmt:parseDate value="${meal.dateTime}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDateTime" type="both"/>
                 <fmt:formatDate pattern="yyyy-MM-dd HH:mm" value="${ parsedDateTime }"/>
