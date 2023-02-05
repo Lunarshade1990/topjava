@@ -6,6 +6,7 @@ import ru.javawebinar.topjava.model.MealTo;
 import ru.javawebinar.topjava.web.repos.MealRepoInMemory;
 import ru.javawebinar.topjava.web.repos.MealRepoInt;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -32,16 +33,14 @@ public class MealsServlet extends HttpServlet {
             case "delete" -> {
                 id = Long.parseLong(request.getParameter("id"));
                 mealRepo.delete(id);
-                forwardToMeals(request, response);
+                response.sendRedirect(request.getContextPath() + "/meals");
             }
             case "update" -> {
                 id = Long.parseLong(request.getParameter("id"));
                 Meal meal = mealRepo.getById(id);
                 forwardToMealForm(meal, action, request, response);
             }
-            case "create" -> {
-                forwardToMealForm(new Meal(), action, request, response);
-            }
+            case "create" -> forwardToMealForm(new Meal(), action, request, response);
             default -> forwardToMeals(request, response);
         }
     }
@@ -69,8 +68,8 @@ public class MealsServlet extends HttpServlet {
     private void forwardToMealForm(Meal meal, String action, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setAttribute("meal", meal);
         request.setAttribute("action", action);
-        request.getRequestDispatcher("/mealForm.jsp")
-                .forward(request, response);
+        RequestDispatcher view = request.getRequestDispatcher("/mealForm.jsp");
+        view.forward(request, response);
     }
 
     private Meal createMeal(HttpServletRequest request) throws UnsupportedEncodingException {
