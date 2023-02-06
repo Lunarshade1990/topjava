@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -31,12 +30,14 @@ public class MealsServlet extends HttpServlet {
         long id;
         switch (action) {
             case "delete" -> {
-                id = Long.parseLong(request.getParameter("id"));
+                id = getId(request);
+                log.info("received /meals {} request with ID {}", action.toUpperCase(), id);
                 mealRepo.delete(id);
                 response.sendRedirect(request.getContextPath() + "/meals");
             }
             case "update" -> {
-                id = Long.parseLong(request.getParameter("id"));
+                id = getId(request);
+                log.info("received /meals {} request with ID {}", action.toUpperCase(), id);
                 Meal meal = mealRepo.getById(id);
                 forwardToMealForm(meal, action, request, response);
             }
@@ -48,7 +49,7 @@ public class MealsServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        long id = Long.parseLong(request.getParameter("id"));
+        long id = getId(request);
         Meal meal = createMeal(request);
         if (id == 0) {
             mealRepo.create(meal);
@@ -59,6 +60,7 @@ public class MealsServlet extends HttpServlet {
         forwardToMeals(request, response);
     }
 
+
     private void forwardToMeals(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         List<MealTo> mealTos = filteredByStreams(mealRepo.getAll(), LocalTime.of(0, 0), LocalTime.of(23, 59), 2000);
         request.setAttribute("meals", mealTos);
@@ -67,21 +69,26 @@ public class MealsServlet extends HttpServlet {
     }
 
     private void forwardToMealForm(Meal meal, String action, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        log.info("received /meals {} request, redirect to mealForm.jsp", action.toUpperCase());
         request.setAttribute("meal", meal);
-        request.setAttribute("action", action);
         RequestDispatcher view = request.getRequestDispatcher("/mealForm.jsp");
         view.forward(request, response);
     }
 
-    private Meal createMeal(HttpServletRequest request) throws UnsupportedEncodingException {
+    private Meal createMeal(HttpServletRequest request) {
         LocalDateTime localDateTime = LocalDateTime.parse(request.getParameter("datetime"));
         String description = request.getParameter("description");
         int calories = Integer.parseInt(request.getParameter("calories"));
+
         Meal meal = new Meal();
         meal.setDescription(description);
         meal.setDateTime(localDateTime);
         meal.setCalories(calories);
         return meal;
+    }
+
+    private long getId(HttpServletRequest request) {
+        return Long.parseLong(request.getParameter("id"));
     }
 
 

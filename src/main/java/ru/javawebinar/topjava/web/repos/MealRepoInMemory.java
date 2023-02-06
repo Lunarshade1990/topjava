@@ -1,16 +1,19 @@
 package ru.javawebinar.topjava.web.repos;
 
+import org.slf4j.Logger;
+import ru.javawebinar.topjava.model.Meal;
+
 import java.time.LocalDateTime;
 import java.time.Month;
-
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import ru.javawebinar.topjava.model.Meal;
+import static org.slf4j.LoggerFactory.getLogger;
 
 public class MealRepoInMemory implements MealRepoInt {
+    private static final Logger log = getLogger(MealRepoInMemory.class);
     private final static List<Meal> meals = new CopyOnWriteArrayList<>();
-    private static long counter = 0L;
+    private static long counter = 8L;
 
     public MealRepoInMemory() {
         meals.add(new Meal(1L, LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500));
@@ -27,14 +30,16 @@ public class MealRepoInMemory implements MealRepoInt {
         synchronized (meals) {
             newMeal.setId(counter++);
             meals.add(newMeal);
-
+            log.info("Meal was created: {}", newMeal);
             return newMeal;
         }
     }
 
     @Override
     public boolean delete(long id) {
-        return meals.removeIf(meal -> meal.getId() == id);
+        boolean wasRemoved = meals.removeIf(meal -> meal.getId() == id);
+        if (wasRemoved) log.info("Meal with id {} was deleted", id);
+        return wasRemoved;
     }
 
     @Override
@@ -46,6 +51,7 @@ public class MealRepoInMemory implements MealRepoInt {
             meal.setDateTime(updatedMeal.getDateTime());
             meal.setDescription(updatedMeal.getDescription());
 
+            log.info("Meal was updated: {}", meal);
             return meal;
         }
     }
@@ -57,10 +63,12 @@ public class MealRepoInMemory implements MealRepoInt {
 
     @Override
     public Meal getById(long id) {
-        return meals.stream()
-                .filter(meal -> meal.getId() == id)
+        Meal meal = meals.stream()
+                .filter(m -> m.getId() == id)
                 .findFirst()
-                .get();
+                .orElseThrow();
+        log.info("Meal was found: {}", meal);
+        return meal;
     }
 }
 
