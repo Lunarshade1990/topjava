@@ -8,32 +8,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class InMemoryMealRepo implements MealRepo {
     private static final Logger log = getLogger(InMemoryMealRepo.class);
     private final Map<Long, Meal> meals = new ConcurrentHashMap<>();
-    private long counter;
-    private final ReentrantLock saveLock = new ReentrantLock();
+    private final AtomicLong counter = new AtomicLong(0);
 
     public InMemoryMealRepo() {
-        MealsUtil.getMeals().forEach(meal -> {
-            Meal newMeal = new Meal();
-            newMeal.setDateTime(meal.getDateTime());
-            newMeal.setCalories(meal.getCalories());
-            newMeal.setDescription(meal.getDescription());
-            save(newMeal);
-        });
+        MealsUtil.getMeals().forEach(this::save);
     }
 
     @Override
-    public Meal save(Meal newMeal) {
-        saveLock.lock();
-        newMeal.setId(++counter);
-        meals.put(counter, newMeal);
-        saveLock.unlock();
+    public Meal save(Meal meal) {
+        Meal newMeal = new Meal(counter.incrementAndGet(), meal.getDateTime(), meal.getDescription(), meal.getCalories());
+        meals.put(newMeal.getId(), newMeal);
         log.info("Meal was created: {}", newMeal);
         return newMeal;
     }
