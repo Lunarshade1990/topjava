@@ -47,6 +47,7 @@ public class MealsServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
         long id = Long.parseLong(request.getParameter("id"));
         Meal meal = createMeal(request);
         if (id == 0) {
@@ -73,7 +74,6 @@ public class MealsServlet extends HttpServlet {
     }
 
     private Meal createMeal(HttpServletRequest request) throws UnsupportedEncodingException {
-        request.setCharacterEncoding("UTF-8");
         LocalDateTime localDateTime = LocalDateTime.parse(request.getParameter("datetime"));
         String description = request.getParameter("description");
         int calories = Integer.parseInt(request.getParameter("calories"));
