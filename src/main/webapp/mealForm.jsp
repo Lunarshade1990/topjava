@@ -11,21 +11,24 @@
 <hr>
 <h2>Edit meal</h2>
 <form class="meal-form" method="post" action="${pageContext.request.contextPath}/meals" name="meal">
-    <div class="meal-id">
-        <label for="id">DateTime: </label>
-        <input type="number" id="id" name="id" value="<c:out value="${meal.id}"/>"/><br/>
-    </div>
+    <c:if test="${meal.id != 0}">
+        <div class="meal-id">
+            <label for="id">DateTime: </label>
+            <input type="number" id="id" name="id" value="${meal.id}"/>"/><br/>
+        </div>
+    </c:if>
+
     <div>
         <label for="datetime">DateTime: </label>
-        <input type="datetime-local" id="datetime" name="datetime" value="<c:out value="${meal.dateTime}"/>"/><br/>
+        <input type="datetime-local" id="datetime" name="datetime" value="${meal.dateTime}"/><br/>
     </div>
     <div>
         <label for="description">Description: </label>
-        <input type="text" id="description" name="description" value="<c:out value="${meal.description}"/>"/><br/>
+        <input type="text" id="description" name="description" value="${meal.description}"/><br/>
     </div>
     <div>
         <label for="calories">Calories: </label>
-        <input type="number" min="0" id="calories" name="calories" value="<c:out value="${meal.calories}"/>"/><br/>
+        <input type="number" min="0" id="calories" name="calories" value="${meal.calories}"/><br/>
     </div>
     <div class="button-block">
         <button type="submit">Save</button>
