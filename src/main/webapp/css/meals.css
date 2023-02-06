@@ -1,3 +1,7 @@
+.add-meal-link {
+    margin-bottom: 0.5rem;
+}
+
 table, td, th {
     border: black solid 1px;
     border-collapse: collapse;
