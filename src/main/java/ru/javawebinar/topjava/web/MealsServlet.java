@@ -22,9 +22,10 @@ import static ru.javawebinar.topjava.util.MealsUtil.filteredByStreams;
 public class MealsServlet extends HttpServlet {
     private static final Logger log = getLogger(MealsServlet.class);
     private MealRepo mealRepo;
+    private static final int CALORIES_PER_DAY = 2000;
 
     @Override
-    public void init() throws ServletException {
+    public void init() {
         mealRepo = new InMemoryMealRepo();
     }
 
@@ -52,7 +53,6 @@ public class MealsServlet extends HttpServlet {
                 break;
             }
             default: {
-                int CALORIES_PER_DAY = 2000;
                 List<MealTo> mealTos = filteredByStreams(mealRepo.getAll(), LocalTime.MIN, LocalTime.MAX, CALORIES_PER_DAY);
                 request.setAttribute("meals", mealTos);
                 request.getRequestDispatcher("/meals.jsp")

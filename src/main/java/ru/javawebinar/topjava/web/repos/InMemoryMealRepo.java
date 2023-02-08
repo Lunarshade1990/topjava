@@ -38,12 +38,13 @@ public class InMemoryMealRepo implements MealRepo {
 
     @Override
     public Meal update(Meal updatedMeal) {
-        Meal meal = meals.replace(updatedMeal.getId(), new Meal(
+        meals.replace(updatedMeal.getId(), new Meal(
                 updatedMeal.getId(),
                 updatedMeal.getDateTime(),
                 updatedMeal.getDescription(),
                 updatedMeal.getCalories()
         ));
+        Meal meal = meals.get(updatedMeal.getId());
         log.info("Meal was updated, new {}",  meal);
         return meal;
     }

@@ -24,7 +24,7 @@ public class Meal {
     public Meal() {
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
