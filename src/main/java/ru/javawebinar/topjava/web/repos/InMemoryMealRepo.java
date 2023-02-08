@@ -18,11 +18,11 @@ public class InMemoryMealRepo implements MealRepo {
     private final AtomicLong counter = new AtomicLong(0);
 
     public InMemoryMealRepo() {
-        MealsUtil.getMeals().forEach(this::save);
+        MealsUtil.getMeals().forEach(this::create);
     }
 
     @Override
-    public Meal save(Meal meal) {
+    public Meal create(Meal meal) {
         Meal newMeal = new Meal(counter.incrementAndGet(), meal.getDateTime(), meal.getDescription(), meal.getCalories());
         meals.put(newMeal.getId(), newMeal);
         log.info("Meal was created: {}", newMeal);
@@ -38,16 +38,14 @@ public class InMemoryMealRepo implements MealRepo {
 
     @Override
     public Meal update(Meal updatedMeal) {
-        synchronized (meals) {
-            Meal meal = getById(updatedMeal.getId());
-
-            meal.setCalories(updatedMeal.getCalories());
-            meal.setDateTime(updatedMeal.getDateTime());
-            meal.setDescription(updatedMeal.getDescription());
-
-            log.info("Meal was updated: {}", meal);
-            return meal;
-        }
+        Meal meal = meals.replace(updatedMeal.getId(), new Meal(
+                updatedMeal.getId(),
+                updatedMeal.getDateTime(),
+                updatedMeal.getDescription(),
+                updatedMeal.getCalories()
+        ));
+        log.info("Meal was updated, new {}",  meal);
+        return meal;
     }
 
     @Override

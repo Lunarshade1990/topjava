@@ -25,7 +25,6 @@ public class MealsServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        super.init();
         mealRepo = new InMemoryMealRepo();
     }
 
@@ -53,7 +52,8 @@ public class MealsServlet extends HttpServlet {
                 break;
             }
             default: {
-                List<MealTo> mealTos = filteredByStreams(mealRepo.getAll(), LocalTime.MIN, LocalTime.MAX, 2000);
+                int CALORIES_PER_DAY = 2000;
+                List<MealTo> mealTos = filteredByStreams(mealRepo.getAll(), LocalTime.MIN, LocalTime.MAX, CALORIES_PER_DAY);
                 request.setAttribute("meals", mealTos);
                 request.getRequestDispatcher("/meals.jsp")
                         .forward(request, response);
@@ -67,7 +67,7 @@ public class MealsServlet extends HttpServlet {
         String strId = request.getParameter("id");
         Meal meal = createMeal(request);
         if (strId == null) {
-            mealRepo.save(meal);
+            mealRepo.create(meal);
         } else {
             meal.setId(Long.parseLong(strId));
             mealRepo.update(meal);
