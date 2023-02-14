@@ -4,6 +4,8 @@ package ru.javawebinar.topjava.util;
 import ru.javawebinar.topjava.model.AbstractBaseEntity;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
+import static ru.javawebinar.topjava.web.SecurityUtil.authUserId;
+
 public class ValidationUtil {
 
     public static <T> T checkNotFoundWithId(T object, int id) {
@@ -39,5 +41,15 @@ public class ValidationUtil {
         } else if (entity.getId() != id) {
             throw new IllegalArgumentException(entity + " must be with id=" + id);
         }
+    }
+
+    public static void checkAuthenticatedUser(int userId)  {
+        if (userId != authUserId()) {
+            throw new NotFoundException("User with id " + userId + " doesn't have access to this meal");
+        }
+    }
+
+    public static boolean checkStringIsEmpty(String s) {
+        return s == null || s.isEmpty();
     }
 }

@@ -14,6 +14,16 @@
         .excess {
             color: red;
         }
+        .filter-container {
+            width: 534px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .filter-container div {
+            width: 30%;
+            display: flex;
+            flex-direction: column;
+        }
     </style>
 </head>
 <body>
@@ -23,6 +33,35 @@
     <h2>Meals</h2>
     <a href="meals?action=create">Add Meal</a>
     <br><br>
+    <div>
+        <form action="${pageContext.request.contextPath}/meals?action=create" method="get">
+<%--            <jsp:useBean id="dateTimeFilter" type="ru.javawebinar.topjava.util.DateTimeFilter"/>--%>
+            <div class="filter-container">
+                <div>
+                    <label for="startDate">От даты (включая)</label>
+                    <input id="startDate" name="startDate" type="date"
+                           value="${dateTimeFilter.startDate == null ? "" : dateTimeFilter.startDate}"/>
+
+                    <label for="endDate">До даты (включая)</label>
+                    <input id="endDate"  name="endDate" type="date"
+                           value="${dateTimeFilter.endDate == null ? "" : dateTimeFilter.endDate}"/>
+                </div>
+                <div>
+                    <label for="startTime">От времени (включая)</label>
+                    <input id="startTime" name="startTime" type="time"
+                           value="${dateTimeFilter.startTime == null ? "" : dateTimeFilter.startTime}"/>
+
+                    <label for="endTime">До времени (исключая)</label>
+                    <input id="endTime" name="endTime" type="time"
+                           value="${dateTimeFilter.endTime == null ? "" : dateTimeFilter.endTime}"/>
+                </div>
+            </div>
+            <div>
+                <button type="submit">Отфильтровать</button>
+                <a href="${pageContext.request.contextPath}/meals">Сбросить</a>
+            </div>
+        </form>
+    </div>
     <table border="1" cellpadding="8" cellspacing="0">
         <thead>
         <tr>
@@ -34,7 +73,7 @@
         </tr>
         </thead>
         <c:forEach items="${requestScope.meals}" var="meal">
-            <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.MealTo"/>
+            <jsp:useBean id="meal" type="ru.javawebinar.topjava.to.MealTo"/>
             <tr class="${meal.excess ? 'excess' : 'normal'}">
                 <td>
                         <%--${meal.dateTime.toLocalDate()} ${meal.dateTime.toLocalTime()}--%>
