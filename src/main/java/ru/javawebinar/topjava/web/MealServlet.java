@@ -56,7 +56,7 @@ public class MealServlet extends HttpServlet {
 
         log.info(meal.isNew() ? "Create {}" : "Update {}", meal);
         if (meal.isNew()) restController.create(meal);
-        else restController.update(meal, authUserId());
+        else restController.update(meal, meal.getId());
         response.sendRedirect("meals");
     }
 
