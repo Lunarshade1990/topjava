@@ -10,14 +10,15 @@ import ru.javawebinar.topjava.util.DateTimeFilter;
 import ru.javawebinar.topjava.util.MealsUtil;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-import static ru.javawebinar.topjava.util.ValidationUtil.*;
+import static ru.javawebinar.topjava.util.DateTimeUtil.isBetween;
 import static ru.javawebinar.topjava.web.SecurityUtil.authUserCaloriesPerDay;
 import static ru.javawebinar.topjava.web.SecurityUtil.authUserId;
 
 @Controller
 public class MealRestController {
-    protected final Logger log = LoggerFactory.getLogger(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private final MealService service;
 
     public MealRestController(MealService service) {
@@ -31,20 +32,21 @@ public class MealRestController {
 
     public List<MealTo> getAllByDateAndTime(DateTimeFilter filter) {
         log.info("getAllByDateAndTime");
-        return MealsUtil.getTos(service.getAllByUserIdAndDateAndTime(authUserId(), filter), authUserCaloriesPerDay());
+        return MealsUtil.getTos(
+                service.getAllByUserIdAndDates(authUserId(), filter.getStartDate(), filter.getEndDate()),
+                authUserCaloriesPerDay()
+        ).stream()
+                .filter(meal -> isBetween(meal.getTime(), filter.getStartTime(), filter.getEndTime(), true))
+                .collect(Collectors.toList());
     }
 
     public Meal get(int id) {
         log.info("get {}", id);
-        Meal meal = service.get(id);
-        checkAuthenticatedUser(meal.getUserId());
-        return meal;
+        return service.get(id);
     }
 
     public Meal create(Meal meal) {
         log.info("create {}", meal);
-        checkNew(meal);
-        checkAuthenticatedUser(meal.getUserId());
         return service.create(meal);
     }
 
@@ -56,8 +58,6 @@ public class MealRestController {
 
     public void update(Meal meal, int id) {
         log.info("update {} with id={}", meal, id);
-        assureIdConsistent(meal, id);
-        checkAuthenticatedUser(meal.getUserId());
-        service.update(meal);
+        service.update(meal, id);
     }
 }

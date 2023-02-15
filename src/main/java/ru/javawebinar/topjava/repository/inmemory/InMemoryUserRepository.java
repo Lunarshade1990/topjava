@@ -6,12 +6,13 @@ import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
 
 import java.util.Comparator;
+import java.util.Locale;
 
 @Repository
 public class InMemoryUserRepository extends AbstractInMemorySortedRepository<User> implements UserRepository {
 
     public InMemoryUserRepository() {
-        defaultComparator = Comparator.comparing(User::getName);
+        defaultComparator = Comparator.comparing(User::getName).thenComparing(User::getId);
 
         save(new User(null,
                 "testUser",
@@ -24,7 +25,7 @@ public class InMemoryUserRepository extends AbstractInMemorySortedRepository<Use
     public User getByEmail(String email) {
         return repository.values()
                 .stream()
-                .filter(user -> user.getPassword().equals(email))
+                .filter(user -> user.getEmail().equalsIgnoreCase(email))
                 .findFirst()
                 .orElse(null);
     }

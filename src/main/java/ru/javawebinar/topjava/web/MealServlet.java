@@ -55,8 +55,11 @@ public class MealServlet extends HttpServlet {
                 authUserId());
 
         log.info(meal.isNew() ? "Create {}" : "Update {}", meal);
-        if (meal.isNew()) restController.create(meal);
-        else restController.update(meal, meal.getId());
+        if (meal.isNew()) {
+            restController.create(meal);
+        } else {
+            restController.update(meal, meal.getId());
+        }
         response.sendRedirect("meals");
     }
 
@@ -71,12 +74,12 @@ public class MealServlet extends HttpServlet {
                 response.sendRedirect("meals");
                 break;
             case "create":
-                final Meal createdMeal = new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000, authUserId());
+                final Meal createdMeal = new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000, null);
                 request.setAttribute("meal", createdMeal);
                 request.getRequestDispatcher("/mealForm.jsp").forward(request, response);
                 break;
             case "update":
-                Meal updatedMeal = restController.get(getId(request));
+                final Meal updatedMeal = restController.get(getId(request));
                 request.setAttribute("meal", updatedMeal);
                 request.getRequestDispatcher("/mealForm.jsp").forward(request, response);
                 break;
@@ -87,7 +90,6 @@ public class MealServlet extends HttpServlet {
                 List<MealTo> meals = dateTimeFilter.isEmpty() ? restController.getAll() :
                         restController.getAllByDateAndTime(dateTimeFilter);
                 request.setAttribute("meals", meals);
-                request.setAttribute("dateTimeFilter", dateTimeFilter);
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
         }

@@ -45,7 +45,7 @@ public class ValidationUtil {
 
     public static void checkAuthenticatedUser(int userId)  {
         if (userId != authUserId()) {
-            throw new NotFoundException("User with id " + userId + " doesn't have access to this meal");
+            throw new NotFoundException("You don't have access to this meal");
         }
     }
 

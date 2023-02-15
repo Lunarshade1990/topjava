@@ -35,25 +35,24 @@
     <br><br>
     <div>
         <form action="${pageContext.request.contextPath}/meals?action=create" method="get">
-<%--            <jsp:useBean id="dateTimeFilter" type="ru.javawebinar.topjava.util.DateTimeFilter"/>--%>
             <div class="filter-container">
                 <div>
                     <label for="startDate">От даты (включая)</label>
                     <input id="startDate" name="startDate" type="date"
-                           value="${dateTimeFilter.startDate == null ? "" : dateTimeFilter.startDate}"/>
+                           value="${param.startDate == null ? "" : param.startDate}"/>
 
                     <label for="endDate">До даты (включая)</label>
                     <input id="endDate"  name="endDate" type="date"
-                           value="${dateTimeFilter.endDate == null ? "" : dateTimeFilter.endDate}"/>
+                           value="${param.endDate == null ? "" : param.endDate}"/>
                 </div>
                 <div>
                     <label for="startTime">От времени (включая)</label>
                     <input id="startTime" name="startTime" type="time"
-                           value="${dateTimeFilter.startTime == null ? "" : dateTimeFilter.startTime}"/>
+                           value="${param.startTime == null ? "" : param.startTime}"/>
 
                     <label for="endTime">До времени (исключая)</label>
                     <input id="endTime" name="endTime" type="time"
-                           value="${dateTimeFilter.endTime == null ? "" : dateTimeFilter.endTime}"/>
+                           value="${param.endTime == null ? "" : param.endTime}"/>
                 </div>
             </div>
             <div>

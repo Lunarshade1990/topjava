@@ -4,12 +4,10 @@ import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.util.MealsUtil;
-import ru.javawebinar.topjava.util.DateTimeFilter;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static ru.javawebinar.topjava.util.DateTimeUtil.isBetween;
@@ -23,7 +21,7 @@ public class InMemoryMealRepository extends AbstractInMemorySortedRepository<Mea
     }
 
     @Override
-    public Collection<Meal> getAllByUserId(int userId) {
+    public List<Meal> getAllByUserId(int userId) {
         return repository
                 .values()
                 .stream()
@@ -32,18 +30,15 @@ public class InMemoryMealRepository extends AbstractInMemorySortedRepository<Mea
                 .collect(Collectors.toList());
     }
 
-    public Collection<Meal> getAllByUserIdAndDateAndTime(int userId, DateTimeFilter filter) {
-        LocalDate startDate = filter.getStartDate() == null ? LocalDate.MIN : filter.getStartDate();
-        LocalDate endDate = filter.getEndDate() == null ? LocalDate.MAX : filter.getEndDate();
-        LocalTime startTime = filter.getStartTime() == null ? LocalTime.MIN : filter.getStartTime();
-        LocalTime endTime = filter.getEndTime() == null ? LocalTime.MAX : filter.getEndTime();
+    public List<Meal> getAllByUserIdAndDateAndTime(int userId, LocalDate startDate, LocalDate endDate) {
+        LocalDate sDate = startDate == null ? LocalDate.MIN : startDate;
+        LocalDate eDate = startDate == null ? LocalDate.MAX : endDate;
 
         return repository
                 .values()
                 .stream()
-                .filter(meal -> isBetween(meal.getDate(), startDate, endDate, false)
-                        && isBetween(meal.getTime(), startTime, endTime, true)
-                        && meal.belongsUser(userId))
+                .filter(meal -> isBetween(meal.getDate(), sDate, eDate, false))
+                .filter(meal -> meal.belongsUser(userId))
                 .collect(Collectors.toList());
     }
 }
