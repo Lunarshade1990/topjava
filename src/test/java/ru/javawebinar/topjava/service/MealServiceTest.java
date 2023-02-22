@@ -54,8 +54,8 @@ public class MealServiceTest {
 
     @Test
     public void delete() {
-        service.delete(TEST_ID, USER_ID);
-        assertThrows(NotFoundException.class, () -> service.get(TEST_ID, USER_ID));
+        service.delete(DAY_1_ID, USER_ID);
+        assertThrows(NotFoundException.class, () -> service.get(DAY_1_ID, USER_ID));
     }
 
     @Test
@@ -65,8 +65,8 @@ public class MealServiceTest {
 
     @Test
     public void get() {
-        Meal meal = service.get(TEST_ID, USER_ID);
-        assertMatch(meal, testMeal);
+        Meal meal = service.get(DAY_1_ID, USER_ID);
+        assertMatch(meal, day1);
     }
 
     @Test
@@ -78,7 +78,7 @@ public class MealServiceTest {
     public void update() {
         Meal updated = getUpdated();
         service.update(updated, USER_ID);
-        assertMatch(service.get(MEAL_ID, USER_ID), updated);
+        assertMatch(service.get(DAY_1_ID, USER_ID), getUpdated());
     }
 
     @Test
@@ -89,7 +89,7 @@ public class MealServiceTest {
 
     @Test
     public void updateDeletedNotFound() {
-        service.delete(TEST_ID, USER_ID);
+        service.delete(DAY_1_ID, USER_ID);
         Meal updated = getUpdated();
         assertThrows(NotFoundException.class, () -> service.update(updated, ADMIN_ID));
     }
@@ -97,19 +97,19 @@ public class MealServiceTest {
     @Test
     public void getAll() {
         List<Meal> all = service.getAll(USER_ID);
-        assertMatch(all, userMeals);
+        assertMatch(all, day2, day1);
     }
 
     @Test
     public void  getBetweenInclusive() {
-        List<Meal> all = service.getBetweenInclusive(TEST_DATE, TEST_DATE, USER_ID);
-        assertMatch(all, userMealsFor31January);
+        List<Meal> all = service.getBetweenInclusive(DATE_1, DATE_1, USER_ID);
+        assertMatch(all, day1);
     }
 
     @Test
     public void  getBetweenInclusiveFewDates() {
-        List<Meal> all = service.getBetweenInclusive(TEST_DATE.minusDays(1), TEST_DATE, USER_ID);
-        assertMatch(all, userMeals);
+        List<Meal> all = service.getBetweenInclusive(DATE_1, DATE_2, USER_ID);
+        assertMatch(all, day2, day1);
     }
 
     @Test
