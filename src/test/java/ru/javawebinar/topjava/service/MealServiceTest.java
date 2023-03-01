@@ -4,6 +4,8 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Stopwatch;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -19,6 +21,8 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertThrows;
@@ -38,18 +42,17 @@ public class MealServiceTest {
     private MealService service;
 
     private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
+    private static final Map<String, Long> latencies = new HashMap<>();
 
-    private static void logInfo(Description description, long nanos) {
-        String testName = description.getMethodName() != null ? description.getMethodName() : description.getClassName();
-        log.info("Test {} finished, spent {} ms",
-                testName, TimeUnit.NANOSECONDS.toMillis(nanos));
+    private static void logInfo(String testName, long nanos) {
+        log.info("Test {} completed in {} ms", testName, TimeUnit.NANOSECONDS.toMillis(nanos));
     }
 
     @ClassRule
-    public static final Stopwatch classStopwatch = new Stopwatch() {
+    public static final TestRule watchman = new TestWatcher() {
         @Override
-        protected void finished(long nanos, Description description) {
-            logInfo(description, nanos);
+        protected void finished(Description description) {
+            latencies.forEach(MealServiceTest::logInfo);
         }
     };
 
@@ -57,7 +60,9 @@ public class MealServiceTest {
     public Stopwatch stopwatch = new Stopwatch() {
         @Override
         protected void finished(long nanos, Description description) {
-            logInfo(description, nanos);
+            String testName = description.getMethodName();
+            latencies.put(testName, nanos);
+            logInfo(testName, nanos);
         }
     };
 
