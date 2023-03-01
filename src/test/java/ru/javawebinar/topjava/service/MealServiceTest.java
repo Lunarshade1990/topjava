@@ -21,8 +21,6 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertThrows;
@@ -42,17 +40,14 @@ public class MealServiceTest {
     private MealService service;
 
     private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
-    private static final Map<String, Long> latencies = new HashMap<>();
+    private static final StringBuilder latencies = new StringBuilder(String.format("\n%-30s %-5s %s\n", "Test", "Time", "Unit"));
 
-    private static void logInfo(String testName, long nanos) {
-        log.info("Test {} completed in {} ms", testName, TimeUnit.NANOSECONDS.toMillis(nanos));
-    }
 
     @ClassRule
     public static final TestRule watchman = new TestWatcher() {
         @Override
         protected void finished(Description description) {
-            latencies.forEach(MealServiceTest::logInfo);
+            log.info(latencies.toString());
         }
     };
 
@@ -61,8 +56,9 @@ public class MealServiceTest {
         @Override
         protected void finished(long nanos, Description description) {
             String testName = description.getMethodName();
-            latencies.put(testName, nanos);
-            logInfo(testName, nanos);
+            String latencyLog = String.format("%-30s %-5d ms\n", testName,  TimeUnit.NANOSECONDS.toMillis(nanos));
+            latencies.append(latencyLog);
+            log.info(latencyLog);
         }
     };
 

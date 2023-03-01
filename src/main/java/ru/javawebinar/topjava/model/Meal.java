@@ -5,14 +5,13 @@ import org.hibernate.validator.constraints.Length;
 import javax.persistence.*;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @NamedQueries({
-        @NamedQuery(name = Meal.UPDATE, query = "UPDATE Meal SET dateTime=:dateTime, description=:description, calories=:calories " +
-                "WHERE user.id=:userId AND id=:id"),
         @NamedQuery(name = Meal.GET, query = "SELECT m FROM Meal m " +
                 "WHERE m.id=:id AND m.user.id=:userId ORDER BY m.dateTime DESC"),
         @NamedQuery(name = Meal.ALL_SORTED, query = "SELECT m FROM Meal m " +
@@ -27,7 +26,6 @@ import java.time.LocalTime;
 public class Meal extends AbstractBaseEntity {
 
     public static final String DELETE = "Meal.delete";
-    public static final String UPDATE = "Meal.update";
     public static final String GET = "Meal.get";
     public static final String ALL_SORTED = "Meal.getAllSorted";
     public static final String ALL_BETWEEN_DATES = "Meal.getAllBetweenDates";
@@ -37,6 +35,7 @@ public class Meal extends AbstractBaseEntity {
     private LocalDateTime dateTime;
 
     @Column(name = "description", nullable = false)
+    @NotBlank
     @Length(min = 2, max = 120)
     private String description;
 
