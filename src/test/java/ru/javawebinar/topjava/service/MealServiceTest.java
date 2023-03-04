@@ -42,7 +42,6 @@ public class MealServiceTest {
     private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
     private static final StringBuilder latencies = new StringBuilder(String.format("\n%-30s %-5s %s\n", "Test", "Time", "Unit"));
 
-
     @ClassRule
     public static final TestRule watchman = new TestWatcher() {
         @Override
