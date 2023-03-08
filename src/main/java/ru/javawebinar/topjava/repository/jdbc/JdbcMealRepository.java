@@ -1,6 +1,7 @@
 package ru.javawebinar.topjava.repository.jdbc;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,8 +13,11 @@ import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+
 
 @Repository
 public class JdbcMealRepository implements MealRepository {
@@ -26,14 +30,25 @@ public class JdbcMealRepository implements MealRepository {
 
     private final SimpleJdbcInsert insertMeal;
 
+    private final Environment env;
+
+    private final String profile;
+
+    private static final String SELECT_QUERY = "SELECT * FROM meal WHERE user_id=?  AND date_time >=  ? AND date_time < ? ORDER BY date_time DESC";
+
     @Autowired
-    public JdbcMealRepository(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+    public JdbcMealRepository(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate, Environment env) {
         this.insertMeal = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("meal")
                 .usingGeneratedKeyColumns("id");
 
         this.jdbcTemplate = jdbcTemplate;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+        this.env = env;
+        List<String> profiles = Arrays.stream(env.getActiveProfiles()).toList();
+        profile =   profiles.contains("hsqldb") ? "hsqldb" :
+                    profiles.contains("postgres") ? "postgres" :
+                    null;
     }
 
     @Override
@@ -42,8 +57,13 @@ public class JdbcMealRepository implements MealRepository {
                 .addValue("id", meal.getId())
                 .addValue("description", meal.getDescription())
                 .addValue("calories", meal.getCalories())
-                .addValue("date_time", meal.getDateTime())
                 .addValue("user_id", userId);
+
+        switch (profile) {
+            case "postgres" -> map.addValue("date_time", meal.getDateTime());
+            case "hsqldb" -> map.addValue("date_time", Timestamp.valueOf(meal.getDateTime()));
+            default -> throw new UnsupportedOperationException("No implementation for this profile");
+        }
 
         if (meal.isNew()) {
             Number newId = insertMeal.executeAndReturnKey(map);
@@ -51,8 +71,8 @@ public class JdbcMealRepository implements MealRepository {
         } else {
             if (namedParameterJdbcTemplate.update("" +
                     "UPDATE meal " +
-                    "   SET description=:description, calories=:calories, date_time=:date_time " +
-                    " WHERE id=:id AND user_id=:user_id", map) == 0) {
+                    "SET description=:description, calories=:calories, date_time=:date_time " +
+                    "WHERE id=:id AND user_id=:user_id", map) == 0) {
                 return null;
             }
         }
@@ -79,8 +99,30 @@ public class JdbcMealRepository implements MealRepository {
 
     @Override
     public List<Meal> getBetweenHalfOpen(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId) {
+        return switch (profile) {
+            case "postgres" -> getBetweenHalfOpenForLocalDateTime(startDateTime, endDateTime, userId);
+            case "hsqldb" -> getBetweenHalfOpenForTimestamp(startDateTime, endDateTime, userId);
+            default -> throw new UnsupportedOperationException("No implementation for this profile");
+        };
+    }
+
+    @Override
+    public Meal getWithUser(int id, int userId) {
+        return null;
+    }
+
+
+    private List<Meal> getBetweenHalfOpenForTimestamp(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId) {
         return jdbcTemplate.query(
-                "SELECT * FROM meal WHERE user_id=?  AND date_time >=  ? AND date_time < ? ORDER BY date_time DESC",
+                SELECT_QUERY,
+                ROW_MAPPER, userId, Timestamp.valueOf(startDateTime), Timestamp.valueOf(endDateTime));
+    }
+
+    private List<Meal> getBetweenHalfOpenForLocalDateTime(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId) {
+        return jdbcTemplate.query(
+                SELECT_QUERY,
                 ROW_MAPPER, userId, startDateTime, endDateTime);
     }
+
+
 }
